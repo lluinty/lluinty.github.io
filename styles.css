@@ -478,3 +478,77 @@ h1 {
   .contributions-months { grid-template-columns: repeat(var(--week-count), 8px); }
   .contributions-grid { grid-template-columns: repeat(var(--week-count), 8px); }
 }
+
+
+/* Compact top-corner controls. */
+.site-tools {
+  position: absolute;
+  z-index: 6;
+  top: 18px;
+  left: 50%;
+  width: min(calc(100% - 40px), 700px);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.site-views, .language-switch {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  border: 1px solid rgba(221, 177, 113, .19);
+  border-radius: 999px;
+  background: rgba(26, 22, 19, .76);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, .2), inset 0 1px 0 rgba(255, 236, 207, .04);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.site-views {
+  gap: 7px;
+  padding: 0 11px;
+  color: #a9957c;
+  font: 9px 'Space Grotesk', sans-serif;
+  letter-spacing: .035em;
+}
+.site-views-icon { color: #c49a67; font-size: 11px; }
+.site-views strong {
+  color: #ead3b1;
+  font-size: 10px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.language-switch { gap: 3px; padding: 3px; }
+.language-button {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  opacity: .62;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: opacity .2s, background .2s, border-color .2s, transform .2s, box-shadow .2s;
+}
+.language-button:hover { opacity: 1; transform: translateY(-1px); }
+.language-button:focus-visible { outline: 2px solid rgba(231, 183, 116, .7); outline-offset: 2px; }
+.language-button.is-active {
+  opacity: 1;
+  border-color: rgba(225, 174, 103, .25);
+  background: linear-gradient(135deg, rgba(188, 131, 64, .24), rgba(93, 63, 39, .24));
+  box-shadow: inset 0 1px 0 rgba(255, 231, 190, .08), 0 2px 10px rgba(0, 0, 0, .15);
+}
+@media (max-width: 560px) {
+  .site-tools { top: 12px; width: calc(100% - 28px); }
+  .site-views, .language-switch { min-height: 31px; }
+  .site-views { padding: 0 9px; gap: 5px; font-size: 8px; }
+  .language-switch { padding: 2px; }
+  .language-button { width: 25px; height: 25px; font-size: 13px; }
+  .page-shell { padding-top: 67px; }
+}
