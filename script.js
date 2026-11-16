@@ -16,7 +16,7 @@ const translations = {
     musicError: 'Добавь MP3 в папку assets — см. README', playing: 'сейчас играет',
     paused: 'пауза', play: 'Воспроизвести трек', pause: 'Поставить на паузу',
     about: '01 / ОБО МНЕ',
-    aboutHtml: '<p>Привет, я <strong>Лёня</strong> — начинающий C# разработчик.</p><p>Интересуюсь разработкой компьютерных игр, Linux и информационной безопасностью.</p><p>Сейчас я разрабатываю проект <strong>escontroller</strong>, который должен помочь инди-разработчикам быстрее создавать игры.</p><p>Посмотреть этот проект можно на моём GitHub, он есть ниже.</p><p class="about-muted">:)</p>',
+    aboutHtml: '<p>Привет, я <strong>Лёня</strong> — начинающий C# разработчик.</p><p>Интересуюсь разработкой компьютерных игр, Linux и информационной безопасностью.</p><p>Сейчас я разрабатываю проект <strong>escontroller</strong>, который должен помочь инди-разработчикам быстрее создавать игры.</p><p>Посмотреть этот проект можно на моём GitHub, он есть ниже.</p><p class="about-muted">вот и всё</p>',
     exploring: 'сейчас изучаю', activity: '02 / АКТИВНОСТЬ НА GITHUB',
     range30: 'contributions за последние 30 дней', range90: 'contributions за последние 3 месяца',
     range365: 'contributions за последний год', loading: 'загрузка активности',
@@ -24,7 +24,7 @@ const translations = {
     selected: 'contributions за выбранный период',
     footnote: 'Активность публичного профиля GitHub. Обновляется автоматически.',
     updated: 'Активность GitHub · данные обновлены ', less: 'меньше', more: 'больше',
-    footer: 'сделано из любопытства', musicLabel: 'Музыкальный плеер',
+    footer: 'до встречи', musicLabel: 'Музыкальный плеер',
     activityLabel: 'Активность GitHub', calendarLabel: 'Календарь активности GitHub',
     linksLabel: 'Мои ссылки', description: 'luinty — начинающий C# разработчик. Personal space.'
   },
@@ -33,7 +33,7 @@ const translations = {
     musicError: 'Add an MP3 file to assets — see README', playing: 'now playing',
     paused: 'paused', play: 'Play track', pause: 'Pause track',
     about: '01 / ABOUT ME',
-    aboutHtml: '<p>Hi, I’m <strong>Leonid</strong> — an aspiring C# developer.</p><p>I’m interested in game development, Linux, and information security.</p><p>I’m currently developing <strong>escontroller</strong>, a project aimed at helping indie developers build games faster.</p><p>You can find it on my GitHub below.</p><p class="about-muted">:)</p>',
+    aboutHtml: '<p>Hi, I’m <strong>Leonid</strong> — an aspiring C# developer.</p><p>I’m interested in game development, Linux, and information security.</p><p>I’m currently developing <strong>escontroller</strong>, a project aimed at helping indie developers build games faster.</p><p>You can find it on my GitHub below.</p><p class="about-muted">that’s all</p>',
     exploring: 'currently exploring', activity: '02 / GITHUB ACTIVITY',
     range30: 'contributions over the past 30 days', range90: 'contributions over the past 3 months',
     range365: 'contributions over the past year', loading: 'loading activity',
@@ -41,7 +41,7 @@ const translations = {
     selected: 'contributions in the selected period',
     footnote: 'Public GitHub profile activity. Updated automatically.',
     updated: 'GitHub activity · data refreshed ', less: 'less', more: 'more',
-    footer: 'made with curiosity', musicLabel: 'Music player',
+    footer: 'see you', musicLabel: 'Music player',
     activityLabel: 'GitHub activity', calendarLabel: 'GitHub contributions calendar',
     linksLabel: 'My links', description: 'luinty — aspiring C# developer. Personal space.'
   }
