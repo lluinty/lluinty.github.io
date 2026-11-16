@@ -552,3 +552,12 @@ h1 {
   .language-button { width: 25px; height: 25px; font-size: 13px; }
   .page-shell { padding-top: 67px; }
 }
+
+
+/* Reserve space for the top utility bar so it never overlaps the profile header. */
+.page-shell { padding-top: 76px; }
+.site-tools { position: fixed; top: 14px; width: min(calc(100% - 40px), 680px); }
+@media (max-width: 560px) {
+  .page-shell { padding-top: 70px; }
+  .site-tools { top: 10px; width: calc(100% - 28px); }
+}
