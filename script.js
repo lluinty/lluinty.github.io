@@ -10,6 +10,92 @@ const progressFill = document.getElementById('progress-fill');
 const currentTimeLabel = document.getElementById('current-time');
 const durationLabel = document.getElementById('duration');
 
+const translations = {
+  ru: {
+    views: 'просмотров', online: 'в сети', idle: 'немного музыки для этого момента',
+    musicError: 'Добавь MP3 в папку assets — см. README', playing: 'сейчас играет',
+    paused: 'пауза', play: 'Воспроизвести трек', pause: 'Поставить на паузу',
+    about: '01 / ОБО МНЕ',
+    aboutHtml: '<p>Привет, я <strong>Лёня</strong> — начинающий C# разработчик.</p><p>Интересуюсь разработкой компьютерных игр, Linux и информационной безопасностью.</p><p>Сейчас я разрабатываю проект <strong>escontroller</strong>, который должен помочь инди-разработчикам быстрее создавать игры.</p><p>Посмотреть этот проект можно на моём GitHub, он есть ниже.</p><p class="about-muted">Always learning. Always building.</p>',
+    exploring: 'сейчас изучаю', activity: '02 / АКТИВНОСТЬ НА GITHUB',
+    range30: 'contributions за последние 30 дней', range90: 'contributions за последние 3 месяца',
+    range365: 'contributions за последний год', loading: 'загрузка активности',
+    loaded: 'активность загружена', unavailable: 'данные недоступны',
+    selected: 'contributions за выбранный период',
+    footnote: 'Активность публичного профиля GitHub. Обнови данные скриптом из README.',
+    updated: 'Активность GitHub · данные обновлены ', less: 'меньше', more: 'больше',
+    footer: 'сделано из любопытства', musicLabel: 'Музыкальный плеер',
+    activityLabel: 'Активность GitHub', calendarLabel: 'Календарь активности GitHub',
+    linksLabel: 'Мои ссылки', description: 'luinty — начинающий C# разработчик. Personal space.'
+  },
+  en: {
+    views: 'views', online: 'online', idle: 'a little soundtrack for this moment',
+    musicError: 'Add an MP3 file to assets — see README', playing: 'now playing',
+    paused: 'paused', play: 'Play track', pause: 'Pause track',
+    about: '01 / ABOUT ME',
+    aboutHtml: '<p>Hi, I’m <strong>Leonid</strong> — an aspiring C# developer.</p><p>I’m interested in game development, Linux, and information security.</p><p>I’m currently building <strong>escontroller</strong>, a project designed to help indie developers create games faster.</p><p>You can check it out on my GitHub below.</p><p class="about-muted">Always learning. Always building.</p>',
+    exploring: 'currently exploring', activity: '02 / GITHUB ACTIVITY',
+    range30: 'contributions in the last 30 days', range90: 'contributions in the last 3 months',
+    range365: 'contributions in the last year', loading: 'loading activity',
+    loaded: 'activity loaded', unavailable: 'data unavailable',
+    selected: 'contributions in the selected period',
+    footnote: 'Activity from the public GitHub profile. Update it with the script in the README.',
+    updated: 'GitHub activity · data refreshed ', less: 'less', more: 'more',
+    footer: 'made with curiosity', musicLabel: 'Music player',
+    activityLabel: 'GitHub activity', calendarLabel: 'GitHub contributions calendar',
+    linksLabel: 'My links', description: 'luinty — aspiring C# developer. Personal space.'
+  }
+};
+let currentLanguage = 'ru';
+function tr(key) { return translations[currentLanguage][key] || key; }
+function updateContributionFootnote() {
+  if (!contributionFootnote) return;
+  if (!contributionUpdatedAt) { contributionFootnote.textContent = tr('footnote'); return; }
+  const updated = new Date(contributionUpdatedAt);
+  const dateText = Number.isNaN(updated.getTime()) ? contributionUpdatedAt :
+    updated.toLocaleDateString(currentLanguage === 'en' ? 'en-US' : 'ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
+  contributionFootnote.textContent = tr('updated') + dateText;
+}
+function applyLanguage(language) {
+  currentLanguage = language === 'en' ? 'en' : 'ru';
+  document.documentElement.lang = currentLanguage;
+  document.title = currentLanguage === 'en' ? 'luinty — profile' : 'luinty — профиль';
+  document.getElementById('page-description').content = tr('description');
+  document.getElementById('site-views-label').textContent = tr('views');
+  document.getElementById('online-label').textContent = tr('online');
+  document.getElementById('track-status').textContent = audio.paused ? tr('idle') : tr('playing');
+  document.getElementById('about-heading').textContent = tr('about');
+  document.getElementById('about-description').innerHTML = tr('aboutHtml');
+  document.getElementById('exploring-label').textContent = tr('exploring');
+  document.getElementById('activity-heading').textContent = tr('activity');
+  document.getElementById('legend-less').textContent = tr('less');
+  document.getElementById('legend-more').textContent = tr('more');
+  document.getElementById('footer-tagline').textContent = tr('footer');
+  document.getElementById('music-player-card').setAttribute('aria-label', tr('musicLabel'));
+  document.querySelector('.contributions-card').setAttribute('aria-label', tr('activityLabel'));
+  document.getElementById('contributions-chart-wrap').setAttribute('aria-label', tr('calendarLabel'));
+  document.querySelector('.social-links').setAttribute('aria-label', tr('linksLabel'));
+  playButton.setAttribute('aria-label', audio.paused ? tr('play') : tr('pause'));
+  document.querySelectorAll('.language-button').forEach((button) => {
+    const active = button.dataset.language === currentLanguage;
+    button.classList.toggle('is-active', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+  try { localStorage.setItem('luinty-language', currentLanguage); } catch (error) {}
+  renderContributionGrid();
+  if (contributionDays) setContributionStatus(tr('loaded'));
+  updateContributionFootnote();
+}
+try {
+  const storedLanguage = localStorage.getItem('luinty-language');
+  if (storedLanguage === 'en' || storedLanguage === 'ru') currentLanguage = storedLanguage;
+} catch (error) {}
+document.querySelectorAll('.language-button').forEach((button) => {
+  button.addEventListener('click', () => applyLanguage(button.dataset.language));
+});
+let contributionUpdatedAt = null;
+
+
 // Аудио подключается локально, без внешних музыкальных сервисов.
 audio.src = TRACK_SRC;
 
@@ -25,7 +111,7 @@ playButton.addEventListener('click', async () => {
     try {
       await audio.play();
     } catch (error) {
-      trackStatus.textContent = 'Добавь MP3 в папку assets — см. README';
+      trackStatus.textContent = tr('musicError');
     }
   } else {
     audio.pause();
@@ -34,13 +120,13 @@ playButton.addEventListener('click', async () => {
 
 audio.addEventListener('play', () => {
   player.classList.add('is-playing');
-  playButton.setAttribute('aria-label', 'Поставить на паузу');
-  trackStatus.textContent = 'now playing';
+  playButton.setAttribute('aria-label', tr('pause'));
+  trackStatus.textContent = tr('playing');
 });
 audio.addEventListener('pause', () => {
   player.classList.remove('is-playing');
-  playButton.setAttribute('aria-label', 'Воспроизвести трек');
-  if (!audio.ended && audio.currentTime > 0) trackStatus.textContent = 'paused';
+  playButton.setAttribute('aria-label', tr('play'));
+  if (!audio.ended && audio.currentTime > 0) trackStatus.textContent = tr('paused');
 });
 audio.addEventListener('loadedmetadata', () => {
   durationLabel.textContent = formatTime(audio.duration);
@@ -53,7 +139,7 @@ audio.addEventListener('timeupdate', () => {
 audio.addEventListener('ended', () => {
   progressFill.style.width = '0%';
   currentTimeLabel.textContent = '0:00';
-  trackStatus.textContent = 'a little soundtrack for this moment';
+  trackStatus.textContent = tr('idle');
 });
 audio.addEventListener('error', () => {
   trackStatus.textContent = 'Добавь MP3 в папку assets — см. README';
@@ -87,9 +173,9 @@ const contributionChartWrap = document.getElementById('contributions-chart-wrap'
 const contributionButtons = document.querySelectorAll('.contributions-range');
 
 const contributionRanges = {
-  30: { label: 'contributions in the last 30 days', days: 30 },
-  90: { label: 'contributions in the last 3 months', months: 3 },
-  365: { label: 'contributions in the last year', months: 12 },
+  30: { key: 'range30', days: 30 },
+  90: { key: 'range90', months: 3 },
+  365: { key: 'range365', months: 12 },
 };
 
 let contributionDays = null;
@@ -124,7 +210,7 @@ function setContributionStatus(message, isError = false) {
 
 function renderContributionGrid() {
   const range = contributionRanges[activeContributionRange];
-  contributionLabel.textContent = range.label;
+  contributionLabel.textContent = tr(range.key);
 
   contributionButtons.forEach((button) => {
     const selected = Number(button.dataset.range) === activeContributionRange;
@@ -172,7 +258,7 @@ function renderContributionGrid() {
 
     if (index === 0 || date.getDate() === 1) {
       const monthLabel = document.createElement('span');
-      monthLabel.textContent = date.toLocaleDateString('en-US', { month: 'short' });
+      monthLabel.textContent = date.toLocaleDateString(currentLanguage === 'en' ? 'en-US' : 'ru-RU', { month: 'short' });
       monthLabel.style.gridColumn = String(Math.floor((startOffset + index) / 7) + 1);
       monthMarkers.appendChild(monthLabel);
     }
@@ -181,10 +267,12 @@ function renderContributionGrid() {
     cell.className = 'contribution-cell';
     cell.dataset.level = String(level);
     cell.setAttribute('role', 'gridcell');
-    const readableDate = date.toLocaleDateString('en-US', {
+    const readableDate = date.toLocaleDateString(currentLanguage === 'en' ? 'en-US' : 'ru-RU', {
       month: 'long', day: 'numeric', year: 'numeric',
     });
-    const tooltip = `${count} ${count === 1 ? 'contribution' : 'contributions'} on ${readableDate}`;
+    const tooltip = currentLanguage === 'en'
+      ? `${count} ${count === 1 ? 'contribution' : 'contributions'} on ${readableDate}`
+      : `${readableDate}: ${count} contributions`;
     cell.title = tooltip;
     cell.setAttribute('aria-label', tooltip);
     cells.appendChild(cell);
@@ -193,16 +281,17 @@ function renderContributionGrid() {
   contributionMonths.appendChild(monthMarkers);
   contributionGrid.appendChild(cells);
   contributionGrid.setAttribute('aria-colcount', String(weekCount));
-  contributionTotal.textContent = total.toLocaleString('en-US');
+  contributionTotal.textContent = total.toLocaleString(currentLanguage === 'en' ? 'en-US' : 'ru-RU');
 }
 
 async function loadContributions() {
-  setContributionStatus('loading activity');
+  setContributionStatus(tr('loading'));
   try {
     const response = await fetch('data/contributions.json', { cache: 'no-store' });
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
     const payload = await response.json();
+    contributionUpdatedAt = payload.updatedAt || null;
     if (!Array.isArray(payload.contributions) || payload.contributions.length === 0) {
       throw new Error('Contribution data is empty');
     }
@@ -218,25 +307,23 @@ async function loadContributions() {
     if (contributionDays.length === 0) throw new Error('No valid contribution days');
 
     renderContributionGrid();
-    setContributionStatus('activity loaded');
+    setContributionStatus(tr('loaded'));
 
     if (payload.updatedAt) {
       const updated = new Date(payload.updatedAt);
-      const dateLabel = Number.isNaN(updated.getTime())
-        ? payload.updatedAt
-        : updated.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
-      contributionFootnote.textContent = `GitHub profile activity · data refreshed ${dateLabel}`;
+      const dateLabel = Number.isNaN(updated.getTime()) ? payload.updatedAt : updated.toLocaleDateString(currentLanguage === 'en' ? 'en-US' : 'ru-RU', { day: 'numeric', month: 'short', year: 'numeric' });
+      contributionFootnote.textContent = tr('updated') + dateLabel;
     } else {
-      contributionFootnote.textContent = 'GitHub profile activity · refresh the data with the update script';
+      contributionFootnote.textContent = tr('footnote');
     }
   } catch (error) {
     contributionDays = null;
     contributionTotal.textContent = '—';
-    contributionLabel.textContent = 'contributions in the selected period';
+    contributionLabel.textContent = tr('selected');
     contributionGrid.replaceChildren();
     contributionMonths.replaceChildren();
-    setContributionStatus('data unavailable', true);
-    contributionFootnote.textContent = 'Run: python scripts/update_contributions.py — details in README';
+    setContributionStatus(tr('unavailable'), true);
+    contributionFootnote.textContent = tr('footnote');
   }
 }
 
@@ -261,3 +348,21 @@ const revealObserver = new IntersectionObserver((entries, observer) => {
 document.querySelectorAll('.reveal').forEach((element) => revealObserver.observe(element));
 
 document.getElementById('year').textContent = new Date().getFullYear();
+applyLanguage(currentLanguage);
+
+// Count actual page loads for the website (not GitHub profile visits).
+async function loadSiteViews() {
+  const output = document.getElementById('site-views-count');
+  try {
+    const response = await fetch('https://countapi.mileshilliard.com/api/v1/hit/luinty_profile_site_views_2026', { cache: 'no-store', mode: 'cors' });
+    if (!response.ok) throw new Error('Counter request failed');
+    const data = await response.json();
+    const value = Number(data.value);
+    if (!Number.isFinite(value)) throw new Error('Invalid counter value');
+    output.textContent = value.toLocaleString(currentLanguage === 'en' ? 'en-US' : 'ru-RU');
+  } catch (error) {
+    output.textContent = '—';
+    output.title = 'Счётчик временно недоступен';
+  }
+}
+loadSiteViews();
