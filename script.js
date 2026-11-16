@@ -339,6 +339,7 @@ contributionButtons.forEach((button) => {
 });
 
 loadContributions();
+applyLanguage(currentLanguage);
 
 // Плавное появление секций при прокрутке.
 const revealObserver = new IntersectionObserver((entries, observer) => {
@@ -352,7 +353,6 @@ const revealObserver = new IntersectionObserver((entries, observer) => {
 document.querySelectorAll('.reveal').forEach((element) => revealObserver.observe(element));
 
 document.getElementById('year').textContent = new Date().getFullYear();
-applyLanguage(currentLanguage);
 
 // Count actual page loads for the website (not GitHub profile visits).
 async function loadSiteViews() {
