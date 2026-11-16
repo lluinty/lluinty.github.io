@@ -386,18 +386,70 @@ document.querySelectorAll('.reveal').forEach((element) => revealObserver.observe
 document.getElementById('year').textContent = new Date().getFullYear();
 
 // Count actual page loads for the website (not GitHub profile visits).
+// CountAPI docs: https://countapi.mileshilliard.com/
+const SITE_VIEWS_ENDPOINT = 'https://countapi.mileshilliard.com/api/v1/hit/luinty_profile_site_views_2026';
+
 async function loadSiteViews() {
   const output = document.getElementById('site-views-count');
+  if (!output) return;
+
+  output.textContent = '…';
+  output.removeAttribute('title');
+
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), 10000);
+
   try {
-    const response = await fetch('https://countapi.mileshilliard.com/api/v1/hit/luinty_profile_site_views_2026', { cache: 'no-store', mode: 'cors' });
-    if (!response.ok) throw new Error('Counter request failed');
-    const data = await response.json();
+    // Do not automatically retry /hit: a timed-out request may already have
+    // incremented the counter on the server, and retrying could double-count.
+    const response = await fetch(SITE_VIEWS_ENDPOINT, {
+      method: 'GET',
+      mode: 'cors',
+      cache: 'no-store',
+      headers: { Accept: 'application/json' },
+      signal: controller.signal,
+    });
+
+    const responseText = await response.text();
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${responseText.slice(0, 180)}`);
+    }
+
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch {
+      throw new Error(`Invalid JSON response: ${responseText.slice(0, 180)}`);
+    }
+
     const value = Number(data.value);
-    if (!Number.isFinite(value)) throw new Error('Invalid counter value');
-    output.textContent = value.toLocaleString(currentLanguage === 'en' ? 'en-US' : 'ru-RU');
+    if (!Number.isSafeInteger(value) || value < 0) {
+      throw new Error(`Invalid counter value in response: ${responseText.slice(0, 180)}`);
+    }
+
+    output.textContent = value.toLocaleString(
+      currentLanguage === 'en' ? 'en-US' : 'ru-RU'
+    );
+    output.title = currentLanguage === 'en'
+      ? 'Total page loads'
+      : 'Общее количество загрузок страницы';
+    output.dataset.status = 'loaded';
   } catch (error) {
-    output.textContent = '—';
-    output.title = 'Счётчик временно недоступен';
+    const reason = error.name === 'AbortError'
+      ? 'Request timed out after 10 seconds'
+      : (error.message || String(error));
+
+    output.textContent = '!';
+    output.title = `Не удалось загрузить счётчик: ${reason}`;
+    output.dataset.status = 'error';
+    console.error('[site-views] CountAPI request failed:', {
+      endpoint: SITE_VIEWS_ENDPOINT,
+      reason,
+      error,
+    });
+  } finally {
+    window.clearTimeout(timeoutId);
   }
 }
+
 loadSiteViews();
