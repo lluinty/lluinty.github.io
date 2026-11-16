@@ -83,7 +83,8 @@ function applyLanguage(language) {
   document.querySelectorAll('.language-button').forEach((button) => {
     const active = button.dataset.language === currentLanguage;
     button.classList.toggle('is-active', active);
-    button.setAttribute('aria-pressed', String(active));
+    button.setAttribute('aria-pressed', active ? 'true' : 'false');
+    button.dataset.active = active ? 'true' : 'false';
   });
   try { localStorage.setItem('luinty-language', currentLanguage); } catch (error) {}
   renderContributionGrid();
