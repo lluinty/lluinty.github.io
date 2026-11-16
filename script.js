@@ -70,6 +70,10 @@ function applyLanguage(language) {
   document.getElementById('activity-heading').textContent = tr('activity');
   document.getElementById('legend-less').textContent = tr('less');
   document.getElementById('legend-more').textContent = tr('more');
+  document.querySelector('[data-range="30"]').textContent = currentLanguage === 'en' ? '30 days' : '30 дн.';
+  document.getElementById('range-90-label').textContent = currentLanguage === 'en' ? '3 months' : '3 месяца';
+  document.getElementById('range-365-label').textContent = currentLanguage === 'en' ? 'Year' : 'Год';
+  document.getElementById('activity-period-controls').setAttribute('aria-label', currentLanguage === 'en' ? 'Activity period' : 'Период активности');
   document.getElementById('footer-tagline').textContent = tr('footer');
   document.getElementById('music-player-card').setAttribute('aria-label', tr('musicLabel'));
   document.querySelector('.contributions-card').setAttribute('aria-label', tr('activityLabel'));
