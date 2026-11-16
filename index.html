@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#171311">
-  <meta name="description" content="luinty — начинающий C# разработчик. Personal space.">
+  <meta name="description" content="luinty — начинающий C# разработчик. Personal space." id="page-description">
   <title>luinty — profile</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,6 +12,17 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <div class="site-tools" aria-label="Site controls">
+    <div class="site-views" aria-live="polite">
+      <span class="site-views-icon" aria-hidden="true">◉</span>
+      <span id="site-views-label">просмотров</span>
+      <strong id="site-views-count">—</strong>
+    </div>
+    <div class="language-switch" role="group" aria-label="Language">
+      <button class="language-button is-active" type="button" data-language="ru" aria-label="Русский" aria-pressed="true" title="Русский">🇷🇺</button>
+      <button class="language-button" type="button" data-language="en" aria-label="English" aria-pressed="false" title="English">🇬🇧</button>
+    </div>
+  </div>
   <div class="background-wash" aria-hidden="true"></div>
   <div class="grain" aria-hidden="true"></div>
   <div class="leaves" id="leaves" aria-hidden="true"></div>
@@ -27,20 +38,20 @@
       <h1 id="profile-name">luinty<span class="name-dot">.</span></h1>
       <p class="subtitle" id="profile-subtitle">Russia, Saint-Petersburg</p>
       <div class="header-meta">
-        <span class="meta-chip"><span class="pulse-dot"></span> online</span>
+        <span class="meta-chip"><span class="pulse-dot"></span> <span id="online-label">в сети</span></span>
         <span class="meta-divider"></span>
         <a class="meta-github" href="https://github.com/lluinty" target="_blank" rel="noopener noreferrer">maybe on github? ↗</a>
       </div>
     </header>
 
-    <section class="music-card glass-card reveal" aria-label="Музыкальный плеер">
+    <section class="music-card glass-card reveal" aria-label="Музыкальный плеер" id="music-player-card">
       <div class="music-art" aria-hidden="true">
         <div class="disc"><span></span></div>
       </div>
       <div class="music-info">
         <span class="section-kicker">NOW PLAYING</span>
         <h2 id="track-title">LXNYA <span>—</span> Sunrise</h2>
-        <p id="track-status">a little soundtrack for this moment</p>
+        <p id="track-status">немного музыки для этого момента</p>
         <div class="track-progress"><span id="progress-fill"></span></div>
         <div class="track-times"><span id="current-time">0:00</span><span id="duration">--:--</span></div>
       </div>
@@ -53,7 +64,7 @@
 
     <section class="about-card glass-card reveal">
       <div class="card-topline">
-        <span class="section-kicker">01 / ABOUT ME</span>
+        <span class="section-kicker" id="about-heading">01 / ОБО МНЕ</span>
         <span class="tiny-spark" aria-hidden="true">✳</span>
       </div>
       <!-- РЕДАКТИРОВАНИЕ ОПИСАНИЯ: меняй текст и HTML внутри блока ниже. -->
@@ -65,27 +76,27 @@
         <p class="about-muted">Always learning. Always building.</p>
       </div>
       <div class="about-footer">
-        <span>currently exploring</span>
+        <span id="exploring-label">сейчас изучаю</span>
         <div class="interest-tags">
           <span>development</span><span>linux</span><span>game dev</span><span>c#</span>
         </div>
       </div>
     </section>
 
-    <section class="contributions-card glass-card reveal" aria-label="GitHub contributions">
+    <section class="contributions-card glass-card reveal" aria-label="Активность GitHub">
       <div class="contributions-topline">
-        <span class="section-kicker">02 / GITHUB ACTIVITY</span>
+        <span class="section-kicker" id="activity-heading">02 / АКТИВНОСТЬ НА GITHUB</span>
         <a class="contributions-profile-link" href="https://github.com/lluinty" target="_blank" rel="noopener noreferrer">lluinty <span aria-hidden="true">↗</span></a>
       </div>
       <div class="contributions-summary">
         <div class="contributions-total-wrap">
           <strong class="contributions-total" id="contributions-total">—</strong>
-          <span class="contributions-total-label" id="contributions-total-label">contributions in the last year</span>
+          <span class="contributions-total-label" id="contributions-total-label">contributions за последний год</span>
         </div>
-        <span class="contributions-status" id="contributions-status"><i></i> loading activity</span>
+        <span class="contributions-status" id="contributions-status"><i></i> загрузка активности</span>
       </div>
       <div class="contributions-controls" role="group" aria-label="Период активности">
-        <button class="contributions-range is-active" type="button" data-range="30" aria-pressed="true">30д</button>
+        <button class="contributions-range is-active" type="button" data-range="30" aria-pressed="true">30 дн.</button>
         <button class="contributions-range" type="button" data-range="90" aria-pressed="false">3 месяца</button>
         <button class="contributions-range" type="button" data-range="365" aria-pressed="false">Год</button>
       </div>
@@ -94,15 +105,15 @@
         <div class="contributions-grid" id="contributions-grid" role="grid" aria-label="GitHub contributions calendar"></div>
       </div>
       <div class="contributions-legend">
-        <span>less</span>
+        <span id="legend-less">меньше</span>
         <span class="contribution-cell" data-level="0" aria-hidden="true"></span>
         <span class="contribution-cell" data-level="1" aria-hidden="true"></span>
         <span class="contribution-cell" data-level="2" aria-hidden="true"></span>
         <span class="contribution-cell" data-level="3" aria-hidden="true"></span>
         <span class="contribution-cell" data-level="4" aria-hidden="true"></span>
-        <span>more</span>
+        <span id="legend-more">больше</span>
       </div>
-      <p class="contributions-footnote" id="contributions-footnote">Activity from the public GitHub profile. Updated automatically.</p>
+      <p class="contributions-footnote" id="contributions-footnote">Активность публичного профиля GitHub. Обновляется автоматически.</p>
     </section>
 
     <nav class="social-links reveal" aria-label="Мои ссылки">
@@ -122,7 +133,7 @@
 
     <footer class="page-footer reveal">
       <span>© <span id="year"></span> luinty</span>
-      <span class="footer-center"><i></i> made with curiosity</span>
+      <span class="footer-center"><i></i> <span id="footer-tagline">сделано из любопытства</span></span>
       <span class="footer-version">PERSONAL WEB / 01</span>
     </footer>
   </main>
