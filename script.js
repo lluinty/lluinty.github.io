@@ -58,6 +58,7 @@ function updateContributionFootnote() {
 }
 function applyLanguage(language) {
   currentLanguage = language === 'en' ? 'en' : 'ru';
+  syncLanguageButtons();
   document.documentElement.lang = currentLanguage;
   document.title = currentLanguage === 'en' ? 'luinty — profile' : 'luinty — профиль';
   document.getElementById('page-description').content = tr('description');
@@ -73,14 +74,14 @@ function applyLanguage(language) {
   document.querySelector('[data-range="30"]').textContent = currentLanguage === 'en' ? '30 days' : '30 дн.';
   document.getElementById('range-90-label').textContent = currentLanguage === 'en' ? '3 months' : '3 месяца';
   document.getElementById('range-365-label').textContent = currentLanguage === 'en' ? 'Year' : 'Год';
-  document.getElementById('activity-period-controls').setAttribute('aria-label', currentLanguage === 'en' ? 'Activity period' : 'Период активности');
+  const periodControls = document.querySelector('.contributions-controls');
+  if (periodControls) periodControls.setAttribute('aria-label', currentLanguage === 'en' ? 'Activity period' : 'Период активности');
   document.getElementById('footer-tagline').textContent = tr('footer');
   document.getElementById('music-player-card').setAttribute('aria-label', tr('musicLabel'));
   document.querySelector('.contributions-card').setAttribute('aria-label', tr('activityLabel'));
   document.getElementById('contributions-chart-wrap').setAttribute('aria-label', tr('calendarLabel'));
   document.querySelector('.social-links').setAttribute('aria-label', tr('linksLabel'));
   playButton.setAttribute('aria-label', audio.paused ? tr('play') : tr('pause'));
-  syncLanguageButtons();
   try { localStorage.setItem('luinty-language', currentLanguage); } catch (error) {}
   renderContributionGrid();
   if (contributionDays) setContributionStatus(tr('loaded'));
@@ -176,7 +177,7 @@ audio.addEventListener('ended', () => {
   trackStatus.textContent = tr('idle');
 });
 audio.addEventListener('error', () => {
-  trackStatus.textContent = 'Добавь MP3 в папку assets — см. README';
+  trackStatus.textContent = tr('musicError');
 });
 
 // Небольшое количество листьев: фон остаётся свободным и кликабельным.
