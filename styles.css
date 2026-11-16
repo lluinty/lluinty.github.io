@@ -561,3 +561,41 @@ h1 {
   .page-shell { padding-top: 70px; }
   .site-tools { top: 10px; width: calc(100% - 28px); }
 }
+
+
+/* Slightly larger top controls and a clearer selected language state. */
+.site-views, .language-switch {
+  min-height: 40px;
+  border-color: rgba(221, 177, 113, .25);
+}
+.site-views {
+  gap: 9px;
+  padding: 0 15px;
+  font-size: 10px;
+}
+.site-views-icon { font-size: 13px; }
+.site-views strong { font-size: 11px; }
+.language-switch { gap: 5px; padding: 4px; }
+.language-button {
+  width: 31px;
+  height: 30px;
+  font-size: 16px;
+}
+.language-button[aria-pressed="true"],
+.language-button.is-active {
+  opacity: 1;
+  border-color: rgba(238, 190, 119, .72);
+  background: linear-gradient(145deg, rgba(214, 158, 89, .42), rgba(117, 78, 43, .38));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 210, .22),
+    0 0 0 2px rgba(214, 158, 89, .12),
+    0 3px 12px rgba(0, 0, 0, .24);
+}
+.language-button:not([aria-pressed="true"]) { opacity: .58; }
+.language-button:not([aria-pressed="true"]):hover { opacity: .95; }
+@media (max-width: 560px) {
+  .site-views, .language-switch { min-height: 36px; }
+  .site-views { padding: 0 12px; gap: 7px; font-size: 9px; }
+  .language-switch { padding: 3px; gap: 4px; }
+  .language-button { width: 28px; height: 28px; font-size: 15px; }
+}
