@@ -80,12 +80,7 @@ function applyLanguage(language) {
   document.getElementById('contributions-chart-wrap').setAttribute('aria-label', tr('calendarLabel'));
   document.querySelector('.social-links').setAttribute('aria-label', tr('linksLabel'));
   playButton.setAttribute('aria-label', audio.paused ? tr('play') : tr('pause'));
-  document.querySelectorAll('.language-button').forEach((button) => {
-    const active = button.dataset.language === currentLanguage;
-    button.classList.toggle('is-active', active);
-    button.setAttribute('aria-pressed', active ? 'true' : 'false');
-    button.dataset.active = active ? 'true' : 'false';
-  });
+  syncLanguageButtons();
   try { localStorage.setItem('luinty-language', currentLanguage); } catch (error) {}
   renderContributionGrid();
   if (contributionDays) setContributionStatus(tr('loaded'));
@@ -95,14 +90,48 @@ try {
   const storedLanguage = localStorage.getItem('luinty-language');
   if (storedLanguage === 'en' || storedLanguage === 'ru') currentLanguage = storedLanguage;
 } catch (error) {}
-document.querySelectorAll('.language-button').forEach((button) => {
-  button.addEventListener('click', () => applyLanguage(button.dataset.language));
+function syncLanguageButtons() {
+  document.querySelectorAll('.language-button').forEach((button) => {
+    const selected = button.dataset.language === currentLanguage;
+    button.classList.toggle('is-active', selected);
+    button.classList.toggle('is-selected', selected);
+    button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+    button.dataset.active = selected ? 'true' : 'false';
+  });
+}
+document.addEventListener('click', (event) => {
+  const button = event.target.closest('.language-button[data-language]');
+  if (button) applyLanguage(button.dataset.language);
 });
 let contributionUpdatedAt = null;
 
 
 // Аудио подключается локально, без внешних музыкальных сервисов.
 audio.src = TRACK_SRC;
+audio.autoplay = true;
+audio.preload = 'auto';
+
+let autoplayFallbackArmed = false;
+async function attemptAutoplay() {
+  try {
+    await audio.play();
+    autoplayFallbackArmed = false;
+    document.removeEventListener('pointerdown', retryAutoplay);
+    document.removeEventListener('keydown', retryAutoplay);
+    document.removeEventListener('touchstart', retryAutoplay);
+  } catch (error) {
+    if (!autoplayFallbackArmed) {
+      autoplayFallbackArmed = true;
+      document.addEventListener('pointerdown', retryAutoplay, { once: true });
+      document.addEventListener('keydown', retryAutoplay, { once: true });
+      document.addEventListener('touchstart', retryAutoplay, { once: true });
+    }
+  }
+}
+function retryAutoplay() {
+  attemptAutoplay();
+}
+attemptAutoplay();
 
 function formatTime(seconds) {
   if (!Number.isFinite(seconds)) return '--:--';
@@ -184,7 +213,7 @@ const contributionRanges = {
 };
 
 let contributionDays = null;
-let activeContributionRange = 30;
+let activeContributionRange = 365;
 
 function localDateKey(date) {
   const year = date.getFullYear();
