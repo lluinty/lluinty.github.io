@@ -40,6 +40,48 @@ def request_json(path: str, params: dict[str, str]) -> dict[str, Any]:
     return payload
 
 
+def get_app_header_image(appid: int) -> str | None:
+    """Return the current Steam Store header image URL for an app."""
+    url = "https://store.steampowered.com/api/appdetails?" + urllib.parse.urlencode(
+        {"appids": str(appid), "l": "english"}
+    )
+    request = urllib.request.Request(
+        url,
+        headers={"User-Agent": "luinty-profile/1.0"},
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=20) as response:
+            payload = json.load(response)
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as error:
+        print(f"Could not fetch Steam header image for app {appid}: {error}")
+        return None
+
+    app_data = payload.get(str(appid), {}) if isinstance(payload, dict) else {}
+    if not isinstance(app_data, dict) or not app_data.get("success"):
+        return None
+
+    details = app_data.get("data")
+    if not isinstance(details, dict):
+        return None
+
+    image_url = details.get("header_image")
+    if not isinstance(image_url, str):
+        return None
+
+    parsed = urllib.parse.urlparse(image_url)
+    if (
+        parsed.scheme != "https"
+        or not parsed.hostname
+        or not parsed.hostname.endswith(".steamstatic.com")
+        or f"/apps/{appid}/" not in parsed.path
+        or not parsed.path.lower().endswith((".jpg", ".jpeg", ".png", ".webp"))
+    ):
+        print(f"Steam returned an unexpected header image URL for app {appid}.")
+        return None
+
+    return image_url
+
+
 def get_response(payload: dict[str, Any]) -> dict[str, Any]:
     response = payload.get("response")
     if not isinstance(response, dict):
@@ -151,6 +193,7 @@ def main() -> int:
     playtime_forever = max(0, int(selected.get("playtime_forever") or 0))
     playtime_two_weeks = max(0, int(selected.get("playtime_2weeks") or 0))
     last_played = int(selected.get("rtime_last_played") or 0)
+    header_image = get_app_header_image(appid)
 
     write_snapshot(
         {
@@ -162,6 +205,7 @@ def main() -> int:
             "game": {
                 "appid": appid,
                 "name": str(selected.get("name") or f"App {appid}"),
+                "headerImage": header_image,
                 "playtimeForeverMinutes": playtime_forever,
                 "playtimeTwoWeeksMinutes": playtime_two_weeks,
                 "lastPlayedAt": last_played or None,
