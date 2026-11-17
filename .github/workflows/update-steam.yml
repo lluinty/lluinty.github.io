@@ -37,7 +37,7 @@ jobs:
       - name: Refresh Steam activity
         env:
           STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
-          STEAM_VANITY_URL: llampillamp
+          STEAM_VANITY_URL: lluinty
         run: python scripts/update_steam.py
 
       - name: Commit updated Steam data
