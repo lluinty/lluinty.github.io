@@ -344,7 +344,19 @@ async function loadSteamActivity() {
       steamArtPlaceholder.hidden = false;
     };
     steamGameImage.alt = String(game.name || 'Steam game');
-    steamGameImage.src = `https://cdn.akamai.steamstatic.com/steam/apps/${appid}/header.jpg`;
+    const headerImage = typeof game.headerImage === 'string' ? game.headerImage : '';
+    const parsedHeaderImage = headerImage ? new URL(headerImage) : null;
+    const isTrustedSteamImage = parsedHeaderImage
+      && parsedHeaderImage.protocol === 'https:'
+      && parsedHeaderImage.hostname.endsWith('.steamstatic.com')
+      && parsedHeaderImage.pathname.includes(`/apps/${appid}/`);
+    if (isTrustedSteamImage) {
+      steamGameImage.src = headerImage;
+    } else {
+      steamGameImage.removeAttribute('src');
+      steamGameImage.hidden = true;
+      steamArtPlaceholder.hidden = false;
+    }
 
     setSteamStatus(tr('steamRecent'), 'ok');
     updateSteamLanguage();
