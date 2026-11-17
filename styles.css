@@ -766,3 +766,9 @@ h1 {
   .steam-game-image { object-position: center 35%; }
   .steam-stats { gap: 22px; }
 }
+
+/* Keep the Steam image in layout while it loads; the placeholder overlays it. */
+.steam-art-placeholder, .steam-game-image { grid-area: 1 / 1; }
+.steam-art-placeholder { z-index: 1; }
+.steam-game-image { z-index: 2; opacity: 0; transition: opacity .25s ease; }
+.steam-game-image.is-loaded { opacity: 1; }
