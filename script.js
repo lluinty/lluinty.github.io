@@ -334,13 +334,14 @@ async function loadSteamActivity() {
     steamProfileLink.href = 'https://steamcommunity.com/profiles/' + encodeURIComponent(String(payload.steamId || ''));
     if (!payload.steamId) steamProfileLink.href = 'https://steamcommunity.com/id/lluinty';
     steamArtPlaceholder.hidden = false;
-    steamGameImage.hidden = true;
+    steamGameImage.classList.remove('is-loaded');
+    steamGameImage.removeAttribute('src');
     steamGameImage.onload = () => {
-      steamGameImage.hidden = false;
+      steamGameImage.classList.add('is-loaded');
       steamArtPlaceholder.hidden = true;
     };
     steamGameImage.onerror = () => {
-      steamGameImage.hidden = true;
+      steamGameImage.classList.remove('is-loaded');
       steamArtPlaceholder.hidden = false;
     };
     steamGameImage.alt = String(game.name || 'Steam game');
@@ -349,9 +350,13 @@ async function loadSteamActivity() {
     if (isLocalSteamImage) {
       const cacheVersion = encodeURIComponent(String(payload.updatedAt || ''));
       steamGameImage.src = headerImage + (cacheVersion ? `?v=${cacheVersion}` : '');
+      if (steamGameImage.complete && steamGameImage.naturalWidth > 0) {
+        steamGameImage.classList.add('is-loaded');
+        steamArtPlaceholder.hidden = true;
+      }
     } else {
       steamGameImage.removeAttribute('src');
-      steamGameImage.hidden = true;
+      steamGameImage.classList.remove('is-loaded');
       steamArtPlaceholder.hidden = false;
     }
 
