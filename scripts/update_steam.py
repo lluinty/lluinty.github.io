@@ -82,6 +82,66 @@ def get_app_header_image(appid: int) -> str | None:
     return image_url
 
 
+def download_game_header_image(image_url: str | None, appid: int) -> str | None:
+    """Download the Steam header into the site repository so visitors use same-origin assets."""
+    if not image_url:
+        print(f"No Steam header image URL was returned for app {appid}.")
+        return None
+
+    parsed = urllib.parse.urlparse(image_url)
+    if (
+        parsed.scheme != "https"
+        or not parsed.hostname
+        or not parsed.hostname.endswith(".steamstatic.com")
+        or f"/apps/{appid}/" not in parsed.path
+    ):
+        print(f"Steam returned an unexpected image URL for app {appid}.")
+        return None
+
+    request = urllib.request.Request(
+        image_url,
+        headers={
+            "User-Agent": "Mozilla/5.0 (compatible; luinty-profile/1.0)",
+            "Accept": "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
+        },
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            content_type = response.headers.get_content_type()
+            image_bytes = response.read(12 * 1024 * 1024 + 1)
+    except (urllib.error.URLError, TimeoutError) as error:
+        print(f"Could not download Steam header for app {appid}: {error}")
+        return None
+
+    if len(image_bytes) > 12 * 1024 * 1024:
+        print(f"Steam header for app {appid} exceeds the 12 MiB limit.")
+        return None
+
+    formats = {
+        "image/jpeg": (".jpg", image_bytes.startswith(b"\xff\xd8\xff")),
+        "image/png": (".png", image_bytes.startswith(b"\x89PNG\r\n\x1a\n")),
+        "image/webp": (".webp", image_bytes.startswith(b"RIFF") and image_bytes[8:12] == b"WEBP"),
+    }
+    image_format = formats.get(content_type)
+    if not image_format or not image_format[1]:
+        print(
+            f"Steam returned an unsupported image for app {appid} "
+            f"(content type: {content_type}, bytes: {len(image_bytes)})."
+        )
+        return None
+
+    extension = image_format[0]
+    filename = f"steam-game-header{extension}"
+    destination = ROOT / "assets" / filename
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    temporary = destination.with_name(f".{destination.name}.tmp")
+    temporary.write_bytes(image_bytes)
+    temporary.replace(destination)
+
+    print(f"Saved Steam header for app {appid} to {destination.relative_to(ROOT)}.")
+    return f"assets/{filename}"
+
+
 def get_response(payload: dict[str, Any]) -> dict[str, Any]:
     response = payload.get("response")
     if not isinstance(response, dict):
@@ -193,7 +253,8 @@ def main() -> int:
     playtime_forever = max(0, int(selected.get("playtime_forever") or 0))
     playtime_two_weeks = max(0, int(selected.get("playtime_2weeks") or 0))
     last_played = int(selected.get("rtime_last_played") or 0)
-    header_image = get_app_header_image(appid)
+    remote_header_image = get_app_header_image(appid)
+    header_image = download_game_header_image(remote_header_image, appid)
 
     write_snapshot(
         {
