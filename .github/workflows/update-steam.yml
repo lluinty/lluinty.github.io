@@ -1,0 +1,54 @@
+name: Refresh Steam activity
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Refresh public Steam activity every 15 minutes.
+    - cron: "*/15 * * * *"
+  push:
+    branches:
+      - main
+    paths:
+      - "scripts/update_steam.py"
+      - ".github/workflows/update-steam.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-steam-activity
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Refresh Steam activity
+        env:
+          STEAM_API_KEY: ${{ secrets.STEAM_API_KEY }}
+          STEAM_VANITY_URL: llampillamp
+        run: python scripts/update_steam.py
+
+      - name: Commit updated Steam data
+        run: |
+          if git diff --quiet -- data/steam.json; then
+            echo "Steam data is already up to date."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/steam.json
+          git commit -m "chore: refresh Steam activity"
+          git push
