@@ -332,7 +332,7 @@ async function loadSteamActivity() {
     }
 
     steamProfileLink.href = 'https://steamcommunity.com/profiles/' + encodeURIComponent(String(payload.steamId || ''));
-    if (!payload.steamId) steamProfileLink.href = 'https://steamcommunity.com/id/llampillamp';
+    if (!payload.steamId) steamProfileLink.href = 'https://steamcommunity.com/id/lluinty';
     steamArtPlaceholder.hidden = false;
     steamGameImage.hidden = true;
     steamGameImage.onload = () => {
