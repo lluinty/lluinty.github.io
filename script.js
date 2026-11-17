@@ -345,13 +345,10 @@ async function loadSteamActivity() {
     };
     steamGameImage.alt = String(game.name || 'Steam game');
     const headerImage = typeof game.headerImage === 'string' ? game.headerImage : '';
-    const parsedHeaderImage = headerImage ? new URL(headerImage) : null;
-    const isTrustedSteamImage = parsedHeaderImage
-      && parsedHeaderImage.protocol === 'https:'
-      && parsedHeaderImage.hostname.endsWith('.steamstatic.com')
-      && parsedHeaderImage.pathname.includes(`/apps/${appid}/`);
-    if (isTrustedSteamImage) {
-      steamGameImage.src = headerImage;
+    const isLocalSteamImage = /^assets\/steam-game-header\.(jpg|png|webp)$/.test(headerImage);
+    if (isLocalSteamImage) {
+      const cacheVersion = encodeURIComponent(String(payload.updatedAt || ''));
+      steamGameImage.src = headerImage + (cacheVersion ? `?v=${cacheVersion}` : '');
     } else {
       steamGameImage.removeAttribute('src');
       steamGameImage.hidden = true;
