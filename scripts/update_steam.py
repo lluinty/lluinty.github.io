@@ -16,7 +16,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "data" / "steam.json"
 STEAM_API = "https://api.steampowered.com"
-VANITY_URL = os.environ.get("STEAM_VANITY_URL", "llampillamp")
+VANITY_URL = os.environ.get("STEAM_VANITY_URL", "lluinty")
 
 
 def request_json(path: str, params: dict[str, str]) -> dict[str, Any]:
