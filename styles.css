@@ -616,3 +616,153 @@ h1 {
   background: transparent;
   box-shadow: none;
 }
+
+
+/* Steam activity — the same warm glass surface and amber details as the GitHub card. */
+.steam-card {
+  padding: 21px 24px 17px;
+  margin-bottom: 15px;
+  transition: border-color .35s, box-shadow .35s, transform .35s;
+}
+.steam-card:hover {
+  border-color: rgba(231, 183, 116, .34);
+  box-shadow: 0 28px 90px rgba(0, 0, 0, .4), 0 0 35px rgba(176, 123, 61, .07), inset 0 1px 0 rgba(255, 238, 209, .06);
+}
+.steam-topline, .steam-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.steam-topline {
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(222, 184, 130, .12);
+}
+.steam-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #8e806f;
+  font: 9px 'Space Grotesk', sans-serif;
+  white-space: nowrap;
+}
+.steam-status i {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
+  border-radius: 50%;
+  background: #a9b77c;
+  box-shadow: 0 0 9px rgba(169, 183, 124, .45);
+}
+.steam-status[data-state="loading"] i { background: #c49a67; box-shadow: 0 0 9px rgba(196, 154, 103, .4); }
+.steam-status[data-state="error"] i { background: #bd7959; box-shadow: 0 0 9px rgba(189, 121, 89, .4); }
+.steam-content {
+  display: grid;
+  grid-template-columns: 158px minmax(0, 1fr);
+  gap: 19px;
+  align-items: center;
+  padding: 17px 0 15px;
+}
+.steam-art-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid rgba(222, 174, 107, .24);
+  border-radius: 15px;
+  background: radial-gradient(circle at 35% 30%, #493321, #211a15 72%);
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, .38), 0 7px 18px rgba(0, 0, 0, .18);
+}
+.steam-game-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.steam-game-image[hidden], .steam-art-placeholder[hidden] { display: none; }
+.steam-art-placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: rgba(225, 179, 112, .72);
+}
+.steam-art-placeholder svg { width: 43px; height: 43px; fill: currentColor; }
+.steam-info { min-width: 0; }
+.steam-caption {
+  color: #b18a5a;
+  font: 600 9px 'Space Grotesk', sans-serif;
+  letter-spacing: .19em;
+}
+.steam-game-name {
+  overflow-wrap: anywhere;
+  margin: 6px 0 3px;
+  color: #f0e6d9;
+  font: 500 19px/1.25 'Space Grotesk', sans-serif;
+  letter-spacing: -.035em;
+}
+.steam-last-played {
+  margin: 0;
+  color: #948675;
+  font-size: 10px;
+  line-height: 1.5;
+}
+.steam-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 26px;
+  margin-top: 14px;
+}
+.steam-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 85px;
+}
+.steam-stat strong {
+  color: #f0c27e;
+  font: 500 23px/1 'Space Grotesk', sans-serif;
+  letter-spacing: -.05em;
+  font-variant-numeric: tabular-nums;
+}
+.steam-stat span {
+  color: #948675;
+  font-size: 9px;
+}
+.steam-footer {
+  padding-top: 11px;
+  border-top: 1px solid rgba(222, 184, 130, .1);
+  color: #796d60;
+  font: 9px/1.5 'Space Grotesk', sans-serif;
+}
+.steam-footer a {
+  color: #d0a16a;
+  font-weight: 600;
+  letter-spacing: .035em;
+  text-decoration: none;
+  transition: color .25s;
+}
+.steam-footer a:hover { color: #ffe0b2; }
+.steam-footer a span { display: inline-block; transition: transform .25s; }
+.steam-footer a:hover span { transform: translate(2px, -2px); }
+.steam-card.reveal { transition-delay: .32s; }
+.social-links.reveal { transition-delay: .38s; }
+.page-footer.reveal { transition-delay: .44s; }
+
+@media (max-width: 560px) {
+  .steam-card { padding: 19px 17px 15px; border-radius: 23px; }
+  .steam-content { grid-template-columns: 112px minmax(0, 1fr); gap: 13px; padding: 15px 0 13px; }
+  .steam-game-name { font-size: 16px; }
+  .steam-stats { gap: 15px; margin-top: 11px; }
+  .steam-stat { min-width: 70px; }
+  .steam-stat strong { font-size: 20px; }
+  .steam-status { font-size: 8px; }
+}
+@media (max-width: 390px) {
+  .steam-content { grid-template-columns: 1fr; }
+  .steam-art-wrap { max-height: 170px; }
+  .steam-game-image { object-position: center 35%; }
+  .steam-stats { gap: 22px; }
+}
