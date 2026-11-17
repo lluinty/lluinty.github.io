@@ -18,6 +18,14 @@ const translations = {
     about: '01 / ОБО МНЕ',
     aboutHtml: '<p>Привет, я <strong>Лёня</strong> — начинающий C# разработчик.</p><p>Интересуюсь разработкой компьютерных игр, Linux и информационной безопасностью.</p><p>Сейчас я разрабатываю проект <strong>escontroller</strong>, который должен помочь инди-разработчикам быстрее создавать игры.</p><p>Посмотреть этот проект можно на моём GitHub, он есть ниже.</p><p class="about-muted">вот и всё</p>',
     exploring: 'сейчас изучаю', activity: '02 / АКТИВНОСТЬ НА GITHUB',
+    steamHeading: '03 / PLAY WITH ME', steamCardLabel: 'Последняя сыгранная игра в Steam',
+    steamLoading: 'загрузка Steam', steamRecent: 'ПОСЛЕДНЯЯ ИГРА',
+    steamNoData: 'Нет публичных данных об играх', steamSetup: 'Нужно настроить Steam API',
+    steamUnavailable: 'Данные Steam недоступны', steamTotal: 'всего наиграно',
+    steamTwoWeeks: 'за 2 недели', steamLastPlayed: 'Последний запуск',
+    steamNoRecent: 'Недавно сыгранные игры не найдены',
+    steamUpdated: 'Steam · обновлено ', steamProfile: 'ПРОФИЛЬ STEAM',
+    steamHours: 'ч', steamMinutes: 'мин',
     range30: 'contributions за последние 30 дней', range90: 'contributions за последние 3 месяца',
     range365: 'contributions за последний год', loading: 'загрузка активности',
     loaded: 'активность загружена', unavailable: 'данные недоступны',
@@ -35,6 +43,14 @@ const translations = {
     about: '01 / ABOUT ME',
     aboutHtml: '<p>Hi, I’m <strong>Leonid</strong> — an aspiring C# developer.</p><p>I’m interested in game development, Linux, and information security.</p><p>I’m currently developing <strong>escontroller</strong>, a project aimed at helping indie developers build games faster.</p><p>You can find it on my GitHub below.</p><p class="about-muted">that’s all</p>',
     exploring: 'currently exploring', activity: '02 / GITHUB ACTIVITY',
+    steamHeading: '03 / PLAY WITH ME', steamCardLabel: 'Recently played Steam game',
+    steamLoading: 'loading Steam', steamRecent: 'RECENTLY PLAYED',
+    steamNoData: 'No public game data', steamSetup: 'Steam API setup required',
+    steamUnavailable: 'Steam data unavailable', steamTotal: 'total playtime',
+    steamTwoWeeks: 'last 2 weeks', steamLastPlayed: 'Last played',
+    steamNoRecent: 'No recently played games found',
+    steamUpdated: 'Steam · updated ', steamProfile: 'STEAM PROFILE',
+    steamHours: 'h', steamMinutes: 'min',
     range30: 'contributions over the past 30 days', range90: 'contributions over the past 3 months',
     range365: 'contributions over the past year', loading: 'loading activity',
     loaded: 'activity loaded', unavailable: 'data unavailable',
@@ -69,6 +85,11 @@ function applyLanguage(language) {
   document.getElementById('about-description').innerHTML = tr('aboutHtml');
   document.getElementById('exploring-label').textContent = tr('exploring');
   document.getElementById('activity-heading').textContent = tr('activity');
+  document.getElementById('steam-heading').textContent = tr('steamHeading');
+  document.getElementById('steam-card').setAttribute('aria-label', tr('steamCardLabel'));
+  document.getElementById('steam-total-label').textContent = tr('steamTotal');
+  document.getElementById('steam-two-weeks-label').textContent = tr('steamTwoWeeks');
+  document.getElementById('steam-profile-link').firstChild.textContent = tr('steamProfile');
   document.getElementById('legend-less').textContent = tr('less');
   document.getElementById('legend-more').textContent = tr('more');
   document.querySelector('[data-range="30"]').textContent = currentLanguage === 'en' ? '30 days' : '30 дн.';
@@ -86,6 +107,7 @@ function applyLanguage(language) {
   renderContributionGrid();
   if (contributionDays) setContributionStatus(tr('loaded'));
   updateContributionFootnote();
+  updateSteamLanguage();
 }
 try {
   const storedLanguage = localStorage.getItem('luinty-language');
@@ -193,6 +215,149 @@ for (let i = 0; i < leafCount; i += 1) {
   leaf.style.setProperty('--delay', `${-Math.random() * 35}s`);
   leaf.style.setProperty('--sway', `${-35 + Math.random() * 70}px`);
   leavesContainer.appendChild(leaf);
+}
+
+
+// === Steam activity ===
+// GitHub Actions refreshes data/steam.json. The Steam API key is never sent to the browser.
+const steamCard = document.getElementById('steam-card');
+const steamStatus = document.getElementById('steam-status');
+const steamStatusText = steamStatus.querySelector('span');
+const steamGameName = document.getElementById('steam-game-name');
+const steamLastPlayed = document.getElementById('steam-last-played');
+const steamTotalHours = document.getElementById('steam-total-hours');
+const steamTwoWeeks = document.getElementById('steam-two-weeks');
+const steamUpdated = document.getElementById('steam-updated');
+const steamGameImage = document.getElementById('steam-game-image');
+const steamArtPlaceholder = document.getElementById('steam-art-placeholder');
+const steamProfileLink = document.getElementById('steam-profile-link');
+
+function setSteamStatus(message, state = 'idle') {
+  steamStatus.dataset.state = state;
+  steamStatusText.textContent = message;
+}
+
+function formatSteamPlaytime(minutes) {
+  const safeMinutes = Math.max(0, Number(minutes) || 0);
+  const hours = safeMinutes / 60;
+  if (hours >= 100) {
+    return `${Math.round(hours).toLocaleString(currentLanguage === 'en' ? 'en-US' : 'ru-RU')} ${tr('steamHours')}`;
+  }
+  if (hours >= 10) {
+    return `${(Math.round(hours * 10) / 10).toLocaleString(currentLanguage === 'en' ? 'en-US' : 'ru-RU')} ${tr('steamHours')}`;
+  }
+  if (hours >= 1) {
+    return `${(Math.round(hours * 10) / 10).toLocaleString(currentLanguage === 'en' ? 'en-US' : 'ru-RU')} ${tr('steamHours')}`;
+  }
+  return `${Math.round(safeMinutes).toLocaleString(currentLanguage === 'en' ? 'en-US' : 'ru-RU')} ${tr('steamMinutes')}`;
+}
+
+function formatSteamDate(timestamp) {
+  const date = new Date(Number(timestamp) * 1000);
+  if (!Number.isFinite(date.getTime())) return '';
+  return date.toLocaleDateString(currentLanguage === 'en' ? 'en-US' : 'ru-RU', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
+}
+
+function updateSteamLanguage() {
+  document.getElementById('steam-heading').textContent = tr('steamHeading');
+  document.getElementById('steam-card').setAttribute('aria-label', tr('steamCardLabel'));
+  document.getElementById('steam-total-label').textContent = tr('steamTotal');
+  document.getElementById('steam-two-weeks-label').textContent = tr('steamTwoWeeks');
+  document.getElementById('steam-profile-link').firstChild.textContent = tr('steamProfile');
+  const updatedAt = steamCard.dataset.updatedAt;
+  if (updatedAt) {
+    const date = new Date(updatedAt);
+    const dateLabel = Number.isNaN(date.getTime()) ? updatedAt :
+      date.toLocaleString(currentLanguage === 'en' ? 'en-US' : 'ru-RU', {
+        day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+      });
+    steamUpdated.textContent = tr('steamUpdated') + dateLabel;
+  } else {
+    steamUpdated.textContent = tr('steamProfile');
+  }
+
+  const lastPlayedAt = steamCard.dataset.lastPlayedAt;
+  if (lastPlayedAt) {
+    steamLastPlayed.textContent = `${tr('steamLastPlayed')}: ${formatSteamDate(lastPlayedAt)}`;
+  }
+}
+
+async function loadSteamActivity() {
+  setSteamStatus(tr('steamLoading'), 'loading');
+  try {
+    const response = await fetch('data/steam.json', { cache: 'no-store' });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const payload = await response.json();
+
+    if (payload.status === 'setup_required') {
+      steamGameName.textContent = tr('steamSetup');
+      steamLastPlayed.textContent = currentLanguage === 'en'
+        ? 'Add STEAM_API_KEY to the repository Actions secrets.'
+        : 'Добавь STEAM_API_KEY в секреты GitHub Actions.';
+      steamTotalHours.textContent = '—';
+      steamTwoWeeks.textContent = '—';
+      setSteamStatus(tr('steamUnavailable'), 'error');
+      return;
+    }
+
+    if (payload.status === 'no_data' || !payload.game) {
+      steamGameName.textContent = tr('steamNoData');
+      steamLastPlayed.textContent = tr('steamNoRecent');
+      steamTotalHours.textContent = '—';
+      steamTwoWeeks.textContent = '—';
+      setSteamStatus(tr('steamUnavailable'), 'error');
+      return;
+    }
+
+    if (payload.status !== 'ok') throw new Error('Steam data status is not ok');
+    const game = payload.game;
+    const appid = Number(game.appid);
+    if (!Number.isSafeInteger(appid) || appid <= 0) throw new Error('Invalid Steam app id');
+
+    steamGameName.textContent = String(game.name || `App ${appid}`);
+    steamTotalHours.textContent = formatSteamPlaytime(game.playtimeForeverMinutes);
+    steamTwoWeeks.textContent = formatSteamPlaytime(game.playtimeTwoWeeksMinutes);
+
+    const lastPlayedAt = Number(game.lastPlayedAt) || 0;
+    steamCard.dataset.lastPlayedAt = lastPlayedAt ? String(lastPlayedAt) : '';
+    steamCard.dataset.updatedAt = payload.updatedAt || '';
+    if (lastPlayedAt) {
+      steamLastPlayed.textContent = `${tr('steamLastPlayed')}: ${formatSteamDate(lastPlayedAt)}`;
+    } else {
+      steamLastPlayed.textContent = tr('steamRecent');
+    }
+
+    steamProfileLink.href = 'https://steamcommunity.com/profiles/' + encodeURIComponent(String(payload.steamId || ''));
+    if (!payload.steamId) steamProfileLink.href = 'https://steamcommunity.com/id/llampillamp';
+    steamArtPlaceholder.hidden = false;
+    steamGameImage.hidden = true;
+    steamGameImage.onload = () => {
+      steamGameImage.hidden = false;
+      steamArtPlaceholder.hidden = true;
+    };
+    steamGameImage.onerror = () => {
+      steamGameImage.hidden = true;
+      steamArtPlaceholder.hidden = false;
+    };
+    steamGameImage.alt = String(game.name || 'Steam game');
+    steamGameImage.src = `https://cdn.akamai.steamstatic.com/steam/apps/${appid}/header.jpg`;
+
+    setSteamStatus(tr('steamRecent'), 'ok');
+    updateSteamLanguage();
+  } catch (error) {
+    steamGameName.textContent = tr('steamUnavailable');
+    steamLastPlayed.textContent = currentLanguage === 'en'
+      ? 'Steam activity will appear after the data source is available.'
+      : 'Статистика появится, когда источник данных станет доступен.';
+    steamTotalHours.textContent = '—';
+    steamTwoWeeks.textContent = '—';
+    setSteamStatus(tr('steamUnavailable'), 'error');
+    console.error('[steam] Failed to load Steam activity:', error);
+  }
 }
 
 // === GitHub contributions ===
@@ -370,6 +535,7 @@ contributionButtons.forEach((button) => {
 });
 
 loadContributions();
+loadSteamActivity();
 applyLanguage(currentLanguage);
 
 // Плавное появление секций при прокрутке.
