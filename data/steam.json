@@ -3,13 +3,13 @@
   "status": "ok",
   "username": "lluinty",
   "steamId": "76561198776282213",
-  "updatedAt": "2026-11-19T18:24:47+00:00",
+  "updatedAt": "2026-11-19T19:20:58+00:00",
   "game": {
-    "appid": 236390,
-    "name": "War Thunder",
+    "appid": 2073620,
+    "name": "Arena Breakout: Infinite",
     "headerImage": "assets/steam-game-header.jpg",
-    "playtimeForeverMinutes": 4590,
-    "playtimeTwoWeeksMinutes": 1850,
-    "lastPlayedAt": 1795023155
+    "playtimeForeverMinutes": 17940,
+    "playtimeTwoWeeksMinutes": 386,
+    "lastPlayedAt": 1795115223
   }
 }
