@@ -3,13 +3,13 @@
   "status": "ok",
   "username": "lluinty",
   "steamId": "76561198776282213",
-  "updatedAt": "2026-11-20T08:51:53+00:00",
+  "updatedAt": "2026-11-20T17:32:11+00:00",
   "game": {
     "appid": 2073620,
     "name": "Arena Breakout: Infinite",
     "headerImage": "assets/steam-game-header.jpg",
-    "playtimeForeverMinutes": 18018,
-    "playtimeTwoWeeksMinutes": 463,
-    "lastPlayedAt": 1795119897
+    "playtimeForeverMinutes": 18156,
+    "playtimeTwoWeeksMinutes": 602,
+    "lastPlayedAt": 1795195594
   }
 }
